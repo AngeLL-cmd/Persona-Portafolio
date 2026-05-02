@@ -354,7 +354,7 @@ export const categoriasHabilidades = [
       { nombre: "Python", nivel: 4 },
       { nombre: "JavaScript / TypeScript", nivel: 4 },
       { nombre: "SQL", nivel: 4 },
-      { nombre: "Java", nivel: 3 },
+      { nombre: "Java", nivel: 2 },
       { nombre: "PHP", nivel: 4 },
       { nombre: "C++", nivel: 2 },
     ],
@@ -366,13 +366,13 @@ export const categoriasHabilidades = [
     lista: [
       { nombre: "React", nivel: 4 },
       { nombre: "Vite", nivel: 4 },
-      { nombre: "React Router DOM", nivel: 4 },
-      { nombre: "Framer Motion", nivel: 4 },
-      { nombre: "Next.js", nivel: 3 },
-      { nombre: "Node.js", nivel: 3 },
+      { nombre: "React Router DOM", nivel: 3 },
+      { nombre: "Framer Motion", nivel: 3 },
+      { nombre: "Next.js", nivel: 2 },
+      { nombre: "Node.js", nivel: 2 },
       { nombre: "Spring Boot", nivel: 2 },
-      { nombre: "Yii2", nivel: 4 },
-      { nombre: "Composer", nivel: 4 },
+      { nombre: "Yii2", nivel: 3 },
+      { nombre: "Composer", nivel: 3 },
     ],
   },
   {
@@ -380,9 +380,9 @@ export const categoriasHabilidades = [
     titulo: "Nube y DevOps",
     imagen: habImgCloud,
     lista: [
-      { nombre: "Git / GitHub", nivel: 4 },
+      { nombre: "Git / GitHub", nivel: 3 },
     { nombre: "CI/CD básico (deploy en Vercel / Netlify / GitHub Pages)", nivel: 3 },
-    { nombre: "Supabase (Backend as a Service)", nivel: 4 }
+    { nombre: "Supabase (Backend as a Service)", nivel: 3 }
       
     ],
   },
