@@ -1,0 +1,1541 @@
+import { useEffect, useState, useRef } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { arcanosProyectos, proyectosLista, proyectosUi } from "./siteContent";
+
+const ARCANA = arcanosProyectos;
+const PROJECTS = proyectosLista;
+
+/** Si en `siteContent.js` `arcano` no coincide con FOOL | MAGICIAN | JUSTICE | HERMIT, usa FOOL para no romper la vista. */
+function estiloPorArcano(key) {
+  const cfg = ARCANA[key];
+  if (cfg) return cfg;
+  if (import.meta.env?.DEV) {
+    console.warn(
+      `[Proyectos] arcano "${String(key)}" no existe. Usa una de: ${Object.keys(ARCANA).join(", ")}`
+    );
+  }
+  return ARCANA.FOOL;
+}
+
+function ArcanaArt({ arcana, size = 72 }) {
+  const c = ARCANA[arcana]?.color ?? "#4de8ff";
+
+  const arts = {
+    FOOL: (
+      <svg width={size} height={size} viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="38" fill="none" stroke={c} strokeWidth="0.8" opacity="0.25" />
+        <circle cx="50" cy="50" r="26" fill="none" stroke={c} strokeWidth="0.6" opacity="0.2" />
+        <circle cx="50" cy="50" r="3.5" fill={c} opacity="0.65" />
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => {
+          const r = (a * Math.PI) / 180;
+          return (
+            <line
+              key={a}
+              x1={50 + 14 * Math.cos(r)}
+              y1={50 + 14 * Math.sin(r)}
+              x2={50 + 32 * Math.cos(r)}
+              y2={50 + 32 * Math.sin(r)}
+              stroke={c}
+              strokeWidth="0.7"
+              opacity="0.38"
+            />
+          );
+        })}
+        <circle
+          cx="50"
+          cy="50"
+          r="45"
+          fill="none"
+          stroke={c}
+          strokeWidth="0.4"
+          strokeDasharray="3 7"
+          opacity="0.18"
+        />
+      </svg>
+    ),
+
+    MAGICIAN: (
+      <svg width={size} height={size} viewBox="0 0 100 100">
+        <polygon
+          points="50,10 62,38 92,38 68,56 78,84 50,66 22,84 32,56 8,38 38,38"
+          fill="none"
+          stroke={c}
+          strokeWidth="0.9"
+          opacity="0.5"
+        />
+        <circle cx="50" cy="50" r="7" fill={c} opacity="0.5" />
+        <circle cx="50" cy="50" r="19" fill="none" stroke={c} strokeWidth="0.4" opacity="0.2" />
+      </svg>
+    ),
+
+    JUSTICE: (
+      <svg width={size} height={size} viewBox="0 0 100 100">
+        <line x1="50" y1="14" x2="50" y2="86" stroke={c} strokeWidth="1.2" opacity="0.4" />
+        <line x1="22" y1="32" x2="78" y2="32" stroke={c} strokeWidth="1" opacity="0.4" />
+        <rect
+          x="16"
+          y="35"
+          width="26"
+          height="16"
+          rx="3"
+          fill="none"
+          stroke={c}
+          strokeWidth="0.8"
+          opacity="0.45"
+        />
+        <rect
+          x="58"
+          y="35"
+          width="26"
+          height="16"
+          rx="3"
+          fill="none"
+          stroke={c}
+          strokeWidth="0.8"
+          opacity="0.45"
+        />
+        <circle cx="50" cy="32" r="3.5" fill={c} opacity="0.55" />
+        <line x1="42" y1="35" x2="38" y2="51" stroke={c} strokeWidth="0.6" opacity="0.28" />
+        <line x1="58" y1="35" x2="62" y2="51" stroke={c} strokeWidth="0.6" opacity="0.28" />
+      </svg>
+    ),
+
+    HERMIT: (
+      <svg width={size} height={size} viewBox="0 0 100 100">
+        <ellipse
+          cx="50"
+          cy="62"
+          rx="17"
+          ry="24"
+          fill="none"
+          stroke={c}
+          strokeWidth="0.8"
+          opacity="0.35"
+        />
+        <circle cx="50" cy="36" r="11" fill="none" stroke={c} strokeWidth="0.9" opacity="0.45" />
+        <circle cx="50" cy="36" r="4.5" fill={c} opacity="0.5" />
+        <line x1="50" y1="47" x2="50" y2="62" stroke={c} strokeWidth="1.2" opacity="0.42" />
+        {[-28, -14, 0, 14, 28].map((offset, i) => (
+          <line
+            key={i}
+            x1={50 + offset * 0.4}
+            y1={86}
+            x2={50}
+            y2={62}
+            stroke={c}
+            strokeWidth="0.5"
+            opacity="0.18"
+          />
+        ))}
+      </svg>
+    ),
+  };
+
+  return arts[arcana] ?? arts.FOOL;
+}
+
+export default function VelvetRoomProjects() {
+  const navigate = useNavigate();
+  const ui = proyectosUi;
+  const intro = proyectosUi.intro;
+
+  const [selectedProject, setSelectedProject] = useState(null);
+
+  const [hoveredId, setHoveredId] = useState(null);
+  const hoverTimerRef = useRef(null);
+
+  const [lockedHoverId, setLockedHoverId] = useState(null);
+
+  const [showIntro, setShowIntro] = useState(true);
+  const [introStep, setIntroStep] = useState(0);
+
+  const filtered = PROJECTS;
+
+  const activeId = lockedHoverId || hoveredId;
+
+  const activeProject = filtered.find((p) => p.id === activeId);
+
+  // Escape key
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape" && selectedProject) {
+        setSelectedProject(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedProject]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        if (selectedProject) {
+          setSelectedProject(null);
+        } else if (hoveredId) {
+          setHoveredId(null);
+          setLockedHoverId(null);
+        } else {
+          navigate("/");
+        }
+      }
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        if (!selectedProject && filtered.length > 0) {
+          const currentIdx = hoveredId
+            ? filtered.findIndex((p) => p.id === hoveredId)
+            : -1;
+
+          let nextIdx;
+
+          if (e.key === "ArrowLeft") {
+            nextIdx = currentIdx <= 0 ? filtered.length - 1 : currentIdx - 1;
+          } else {
+            nextIdx = currentIdx >= filtered.length - 1 ? 0 : currentIdx + 1;
+          }
+
+          const nextProject = filtered[nextIdx];
+
+          setHoveredId(nextProject.id);
+          setLockedHoverId(nextProject.id);
+        }
+      }
+
+      if (e.key === "Enter") {
+        if (hoveredId && !selectedProject) {
+          const project = filtered.find((p) => p.id === hoveredId);
+
+          if (project) {
+            setSelectedProject(project);
+          }
+        }
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedProject, filtered, hoveredId, navigate]);
+
+  const modalArcano = selectedProject ? estiloPorArcano(selectedProject.arcana) : null;
+
+  return (
+      <div className="vr">
+        <div className="vr-bg-base" />
+        <div className="vr-bg-glow vr-bg-glow--a" />
+        <div className="vr-bg-glow vr-bg-glow--b" />
+        <div className="vr-bg-slash" />
+        <div className="vr-scanlines" />
+        <div className="vr-grid" />
+
+        <header className="vr-header">
+          <div className="vr-header__left">
+            <p className="vr-eyebrow">{ui.ceja}</p>
+            <h1 className="vr-title">{ui.titulo}</h1>
+            <p className="vr-subtitle">
+              {ui.subtitulo}
+            </p>
+          </div>
+
+          <div className="vr-header__right">
+            <div className="vr-statbar">
+              <div className="vr-statbar__cell">
+                <span className="vr-statbar__val">
+                  {PROJECTS.length.toString().padStart(2, "0")}
+                </span>
+                <span className="vr-statbar__label">{ui.proyectosEtiqueta}</span>
+              </div>
+
+              <div className="vr-statbar__sep" />
+
+              <div className="vr-statbar__cell">
+                <span className="vr-statbar__val">{ui.estadoSistemaValor}</span>
+                <span className="vr-statbar__label">{ui.estadoSistemaEtiqueta}</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div className="vr-layout">
+          <section className="vr-compendium" aria-label={ui.titulo}>
+            <AnimatePresence mode="popLayout">
+              {filtered.map((project) => {
+                const cfg = estiloPorArcano(project.arcana);
+
+                const isHov = hoveredId === project.id;
+                const isDim = hoveredId && hoveredId !== project.id;
+
+                return (
+                  <motion.article
+                    key={project.id}
+                    layout
+                    layoutId={`card-${project.id}`}
+                    className={`vr-card ${isHov ? "is-hovered" : ""} ${
+                      isDim ? "is-dimmed" : ""
+                    }`}
+                    style={{
+                      "--c": cfg.color,
+                      "--cb": cfg.bordeActivo,
+                      "--cdim": cfg.dimColor,
+                    }}
+                    initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                    animate={{
+                      opacity: isDim ? 0.38 : 1,
+                      y: 0,
+                      scale: isHov ? 1.025 : 1,
+                      filter: isDim
+                        ? "blur(0.4px) saturate(0.5)"
+                        : "blur(0px) saturate(1)",
+                    }}
+                    exit={{ opacity: 0, y: 16, scale: 0.96 }}
+                    transition={{
+                      duration: 0.36,
+                      ease: [0.22, 1, 0.36, 1],
+                    }}
+
+
+                    onHoverStart={() => {
+                      if (hoverTimerRef.current) {
+                        clearTimeout(hoverTimerRef.current);
+                      }
+
+                      // immediate hover
+                      setHoveredId(project.id);
+
+                      // delayed lock
+                      hoverTimerRef.current = setTimeout(() => {
+                        setLockedHoverId(project.id);
+                      }, 300);
+                    }}
+
+           
+                    onHoverEnd={() => {
+                      if (hoverTimerRef.current) {
+                        clearTimeout(hoverTimerRef.current);
+                      }
+
+                      setHoveredId(null);
+                      setLockedHoverId(null);
+                    }}
+
+                    onClick={() => setSelectedProject(project)}
+                  >
+                    <div className="vr-card__art">
+                      <div className="vr-card__art-glow" />
+
+                      <ArcanaArt arcana={project.arcana} size={68} />
+
+                      <span className="vr-card__arcana-num">
+                        {cfg.num}
+                      </span>
+                    </div>
+
+                    <div className="vr-card__body">
+                      <p className="vr-card__arcana-label">
+                        {cfg.nombre}
+                      </p>
+
+                      <h2 className="vr-card__title">
+                        {project.titulo}
+                      </h2>
+
+                      <p className="vr-card__summary">
+                        {project.resumen}
+                      </p>
+
+                      <div className="vr-card__stack">
+                        {project.stack.slice(0, 3).map((s) => (
+                          <span key={s} className="vr-tag">
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="vr-card__footer">
+                        <span className="vr-card__impact">
+                          {project.impacto}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="vr-card__scan" />
+
+                    <i className="vr-corner vr-corner--tl" />
+                    <i className="vr-corner vr-corner--tr" />
+                    <i className="vr-corner vr-corner--bl" />
+                    <i className="vr-corner vr-corner--br" />
+                  </motion.article>
+                );
+              })}
+            </AnimatePresence>
+          </section>
+
+      
+          <aside className="vr-hologram-panel">
+            <AnimatePresence mode="wait">
+              {activeProject && (
+                <motion.div
+                  key={activeProject.id}
+                  className="vr-holo-display"
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 12 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <div
+                    style={{
+                      paddingBottom: "12px",
+                      borderBottom:
+                        "1px solid rgba(87,231,255,0.1)",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        letterSpacing: "0.1em",
+                        color: "rgba(87,231,255,0.6)",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      {ui.perfilPanel}
+                    </p>
+
+                    <p
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "400",
+                        color: "rgba(255,255,255,0.9)",
+                      }}
+                    >
+                      {activeProject.titulo}
+                    </p>
+                  </div>
+
+                  <div className="vr-holo-stat">
+                    <span className="vr-holo-label">
+                      {ui.complejidad}
+                    </span>
+
+                    <div className="vr-holo-bar">
+                      <motion.div
+                        className="vr-holo-fill"
+                        initial={{ width: 0 }}
+                        animate={{ width: "72%" }}
+                        transition={{
+                          duration: 0.4,
+                          delay: 0.05,
+                        }}
+                      />
+                    </div>
+
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(87,231,255,0.5)",
+                      }}
+                    >
+                      72%
+                    </span>
+                  </div>
+
+                  <div className="vr-holo-stat">
+                    <span className="vr-holo-label">
+                      {ui.alcance}
+                    </span>
+
+                    <div className="vr-holo-bar">
+                      <motion.div
+                        className="vr-holo-fill"
+                        initial={{ width: 0 }}
+                        animate={{ width: "85%" }}
+                        transition={{
+                          duration: 0.4,
+                          delay: 0.1,
+                        }}
+                      />
+                    </div>
+
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(87,231,255,0.5)",
+                      }}
+                    >
+                      85%
+                    </span>
+                  </div>
+
+                  <div className="vr-holo-stat">
+                    <span className="vr-holo-label">
+                      {ui.innovacion}
+                    </span>
+
+                    <div className="vr-holo-bar">
+                      <motion.div
+                        className="vr-holo-fill"
+                        initial={{ width: 0 }}
+                        animate={{ width: "68%" }}
+                        transition={{
+                          duration: 0.4,
+                          delay: 0.15,
+                        }}
+                      />
+                    </div>
+
+                    <span
+                      style={{
+                        fontSize: "9px",
+                        color: "rgba(87,231,255,0.5)",
+                      }}
+                    >
+                      68%
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      paddingTop: "12px",
+                      borderTop:
+                        "1px solid rgba(87,231,255,0.1)",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontSize: "9px",
+                        letterSpacing: "0.2em",
+                        color: "rgba(87,231,255,0.5)",
+                        textTransform: "uppercase",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      {ui.estadoEntrada}
+                    </p>
+
+                    <p
+                      style={{
+                        fontSize: "12px",
+                        color: "rgba(87,231,255,0.8)",
+                      }}
+                    >
+                      {ui.estadoActivoTarjeta}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </aside>
+        </div>
+
+        {/* ── INTRO OVERLAY ── */}
+        <AnimatePresence>
+          {showIntro && introStep < 2 && (
+            <motion.div
+              className="vr-intro-layer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <motion.div
+                className="vr-intro-card"
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="vr-intro-portraits">
+                  <motion.figure
+                    className="vr-intro-portrait"
+                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                    animate={introStep === 0 ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0.4, y: 0, scale: 1 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <img src={intro.imgGuia} alt="" />
+                    <figcaption>{intro.nombreGuia}</figcaption>
+                  </motion.figure>
+
+                  <motion.figure
+                    className="vr-intro-portrait"
+                    initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                    animate={introStep === 1 ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0.4, y: 0, scale: 1 }}
+                    transition={{ duration: 0.4 }}
+                  >
+                    <img src={intro.imgAsistente} alt="" />
+                    <figcaption>{intro.nombreAsistente}</figcaption>
+                  </motion.figure>
+                </div>
+
+                {/* Dialogue */}
+                <div className="vr-intro-text">
+                  <AnimatePresence mode="wait">
+                    {introStep === 0 && (
+                      <motion.div
+                        key="igor-msg"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <p className="vr-intro-speaker">{intro.nombreGuia}</p>
+                        <p className="vr-intro-line">{intro.textoGuia}</p>
+                      </motion.div>
+                    )}
+                    {introStep === 1 && (
+                      <motion.div
+                        key="elizabeth-msg"
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <p className="vr-intro-speaker">{intro.nombreAsistente}</p>
+                        <p className="vr-intro-line">{intro.textoAsistente}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Buttons */}
+                <div className="vr-intro-buttons">
+                  {introStep === 0 && (
+                    <>
+                      <button
+                        className="vr-intro-btn vr-intro-btn--back"
+                        onClick={() => navigate("/")}
+                      >
+                        {intro.volverInicio}
+                      </button>
+                      <button
+                        className="vr-intro-btn vr-intro-btn--continue"
+                        onClick={() => setIntroStep(1)}
+                      >
+                        {intro.continuar}
+                      </button>
+                    </>
+                  )}
+                  {introStep === 1 && (
+                    <>
+                      <button
+                        className="vr-intro-btn vr-intro-btn--back"
+                        onClick={() => setIntroStep(0)}
+                      >
+                        {intro.noVolver}
+                      </button>
+                      <button
+                        className="vr-intro-btn vr-intro-btn--continue"
+                        onClick={() => {
+                          setIntroStep(2);
+                          setTimeout(() => setShowIntro(false), 1000);
+                        }}
+                      >
+                        {intro.siContinuar}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* Fade to black transition */}
+          {showIntro && introStep === 2 && (
+            <motion.div
+              className="vr-fade-black"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* ── INSTRUCTION PAD ── */}
+        
+        <div className={`vr-footer ${!showIntro ? "mounted" : ""}`}>
+  <div className="vr-footer-row">
+    <span className="vr-footer-key">←→</span>
+    <span>{ui.pie.seleccionar}</span>
+  </div>
+
+  <div className="vr-footer-row">
+    <span className="vr-footer-key">↵</span>
+    <span>{ui.pie.abrir}</span>
+  </div>
+
+  <div className="vr-footer-row">
+    <span className="vr-footer-key">ESC</span>
+    <span>{ui.pie.volver}</span>
+  </div>
+</div>
+
+        {/* ── SUMMON OVERLAY ── */}
+        <AnimatePresence>
+          {selectedProject && modalArcano && (
+            <motion.div
+              className="vr-summon-layer"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setSelectedProject(null)}
+            >
+              <motion.article
+                layoutId={`card-${selectedProject.id}`}
+                className="vr-summon-card"
+                style={{
+                  "--c": modalArcano.color,
+                  "--cb": modalArcano.bordeActivo,
+                  "--cdim": modalArcano.dimColor,
+                }}
+                initial={{ scale: 0.95, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 20 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Summon glow */}
+                <div className="vr-summon-card__glow" />
+
+                {/* Summon header */}
+                <div className="vr-summon-card__head">
+                  {/* Art panel */}
+                  <div className="vr-summon-card__art">
+                    <ArcanaArt arcana={selectedProject.arcana} size={100} />
+                    <span className="vr-summon-card__arcana-num">
+                      {modalArcano.num}
+                    </span>
+                  </div>
+
+                  {/* Info */}
+                  <div className="vr-summon-card__info">
+                    <p className="vr-summon-card__label">
+                      {ui.modal.invocacion} {modalArcano.nombre}
+                    </p>
+                    <h2 className="vr-summon-card__title">{selectedProject.titulo}</h2>
+                    <div className="vr-summon-card__stack">
+                      {selectedProject.stack.map((s) => (
+                        <span key={s} className="vr-tag">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    className="vr-summon-card__close"
+                    onClick={() => setSelectedProject(null)}
+                  >
+                    {ui.modal.salir}
+                  </button>
+                </div>
+
+                {/* Divider */}
+                <div className="vr-summon-card__divider" />
+
+                {/* Details */}
+                <div className="vr-summon-card__details">
+                  <div className="vr-detail-block">
+                    <p className="vr-detail-label">{ui.modal.perfilProyecto}</p>
+                    <p className="vr-detail-text">{selectedProject.detalles}</p>
+                  </div>
+                  <div className="vr-detail-block">
+                    <p className="vr-detail-label">{ui.modal.resultado}</p>
+                    <p className="vr-detail-text vr-detail-text--impact">{selectedProject.impacto}</p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="vr-summon-card__actions">
+                  <a
+                    href={selectedProject.enlace}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="vr-action-link"
+                  >
+                    {ui.modal.enlaceExterno}
+                  </a>
+                </div>
+
+                {/* Corner brackets */}
+                <i className="vr-corner vr-corner--tl" />
+                <i className="vr-corner vr-corner--tr" />
+                <i className="vr-corner vr-corner--bl" />
+                <i className="vr-corner vr-corner--br" />
+              </motion.article>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── STYLES ── */}
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,700;1,700&display=swap');
+
+          *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+          /* ──── TOKENS ──── */
+          .vr {
+            --cyan:      #57e7ff;
+            --gold:      #d8bc62;
+            --red:       #ef476f;
+            --text-hi:   rgba(244, 249, 255, 0.98);
+            --text-mid:  rgba(180, 205, 230, 0.78);
+            --text-lo:   rgba(118, 145, 180, 0.54);
+            --border:    rgba(87, 231, 255, 0.16);
+            --border-hi: rgba(87, 231, 255, 0.64);
+            --card-bg:   rgba(8, 16, 38, 0.92);
+            --panel-bg:  rgba(7, 14, 32, 0.9);
+            --ff-title:  'Anton', sans-serif;
+            --ff-mono:   'Share Tech Mono', monospace;
+            --ff-body:   'Barlow Condensed', sans-serif;
+          }
+
+          /* ──── ROOT ──── */
+          .vr {
+            position: relative;
+            min-height: 100dvh;
+            background: #06101d;
+            font-family: var(--ff-body);
+            color: var(--text-hi);
+            overflow-x: hidden;
+            isolation: isolate;
+          }
+
+          /* ──── BG LAYERS ──── */
+          .vr-bg-base {
+            position: fixed; inset: 0; z-index: 0;
+            background:
+              radial-gradient(ellipse 88% 58% at 50% -5%, rgba(23, 58, 132, 0.96) 0%, transparent 62%),
+              radial-gradient(ellipse 62% 42% at 15% 85%, rgba(10, 18, 52, 0.95) 0%, transparent 52%),
+              linear-gradient(135deg, #060d19 0%, #09152a 54%, #060b16 100%);
+          }
+
+          .vr-bg-glow {
+            position: fixed; z-index: 0;
+            pointer-events: none;
+            filter: blur(38px);
+            animation: vr-breathe 16s ease-in-out infinite;
+          }
+          .vr-bg-glow--a {
+            inset: -10% 22% 28% -10%;
+            background: radial-gradient(circle, rgba(87,231,255,0.11), transparent 60%);
+            animation-delay: 0s;
+          }
+          .vr-bg-glow--b {
+            inset: 22% -8% -14% 48%;
+            background: radial-gradient(circle, rgba(239,71,111,0.08), transparent 60%);
+            animation-delay: -6s;
+          }
+
+          .vr-bg-slash {
+            position: fixed;
+            inset: -10% -20% auto auto;
+            width: min(56vw, 720px);
+            height: 62vh;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.14;
+            background:
+              linear-gradient(135deg, transparent 40%, rgba(239,71,111,0.28) 50%, transparent 60%),
+              linear-gradient(135deg, transparent 47%, rgba(87,231,255,0.18) 50%, transparent 53%);
+            transform: rotate(-8deg);
+            filter: blur(0.4px);
+            mix-blend-mode: screen;
+          }
+
+          /* Subtle CRT scanlines */
+          .vr-scanlines {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none;
+            background: repeating-linear-gradient(
+              to bottom,
+              transparent 0px, transparent 4px,
+              rgba(0,0,0,0.05) 4px, rgba(0,0,0,0.055) 5px
+            );
+          }
+
+          /* Subtle grid overlay */
+          .vr-grid {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+              linear-gradient(rgba(87,231,255,0.03) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(87,231,255,0.03) 1px, transparent 1px);
+            background-size: 44px 44px;
+          }
+
+          /* ──── HEADER ──── */
+          .vr-header {
+            position: relative; z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 20px;
+            padding: 28px 28px 18px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+          }
+
+          .vr-eyebrow {
+            font-family: var(--ff-mono);
+            font-size: 10px;
+            letter-spacing: 0.32em;
+            color: rgba(87,231,255,0.55);
+            margin-bottom: 7px;
+          }
+
+          .vr-title {
+            font-family: var(--ff-title);
+            font-size: clamp(42px, 6vw, 72px);
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            color: var(--text-hi);
+            text-shadow: 0 0 28px rgba(87,231,255,0.18), 0 0 60px rgba(239,71,111,0.06);
+            line-height: 1;
+          }
+
+          .vr-subtitle {
+            font-family: var(--ff-body);
+            font-size: 16px;
+            color: var(--text-mid);
+            margin-top: 8px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+          }
+
+          .vr-header__right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-shrink: 0;
+          }
+
+          /* Stat bar */
+          .vr-statbar {
+            display: flex;
+            align-items: stretch;
+            border: 1px solid var(--border);
+            background: var(--panel-bg);
+            overflow: hidden;
+          }
+          .vr-statbar__cell {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 9px 16px; gap: 2px;
+          }
+          .vr-statbar__val {
+            font-family: var(--ff-mono);
+            font-size: 17px; line-height: 1;
+            color: var(--cyan);
+          }
+          .vr-statbar__label {
+            font-family: var(--ff-mono);
+            font-size: 8px; letter-spacing: 0.22em;
+            color: var(--text-lo);
+          }
+          .vr-statbar__sep {
+            width: 1px;
+            background: var(--border);
+          }
+
+          .vr-return-btn {
+            font-family: var(--ff-mono);
+            font-size: 10px; letter-spacing: 0.22em;
+            padding: 9px 14px;
+            border: 1px solid var(--border);
+            background: var(--panel-bg);
+            color: var(--text-mid);
+            cursor: pointer;
+            transition: border-color 0.2s, color 0.2s;
+          }
+          .vr-return-btn:hover { border-color: var(--border-hi); color: var(--cyan); }
+
+          /* ──── FILTER TABS ──── */
+          .vr-filters {
+            position: relative; z-index: 10;
+            display: flex;
+            padding: 0 28px;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            gap: 0;
+          }
+
+          .vr-tab {
+            display: flex; align-items: center; gap: 8px;
+            padding: 13px 18px;
+            border: none; border-bottom: 2px solid transparent;
+            background: transparent;
+            color: var(--text-lo);
+            font-family: var(--ff-mono);
+            font-size: 10.5px; letter-spacing: 0.22em;
+            cursor: pointer;
+            transition: color 0.2s, background 0.2s, border-color 0.2s;
+            white-space: nowrap;
+            margin-bottom: -1px;
+          }
+          .vr-tab:hover { color: var(--text-mid); background: rgba(87,231,255,0.04); }
+          .vr-tab.is-active {
+            color: var(--tab-c, var(--cyan));
+            border-bottom-color: var(--tab-c, var(--cyan));
+            background: rgba(87,231,255,0.06);
+          }
+
+          .vr-tab__num {
+            font-family: var(--ff-mono); font-size: 9px; opacity: 0.72;
+          }
+          .vr-tab__count {
+            font-size: 9px; padding: 1px 5px;
+            background: rgba(87,231,255,0.08);
+            color: rgba(87,231,255,0.56);
+          }
+
+          /* ──── MAIN LAYOUT ──── */
+          .vr-layout {
+            position: relative; z-index: 10;
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            min-height: calc(100dvh - 170px);
+            width: 100%;
+          }
+
+          /* ──── COMPENDIUM ──── */
+          .vr-compendium {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+            padding: 24px;
+            align-content: start;
+            justify-items: stretch;
+            perspective: 1200px;
+            max-width: 100%;
+          }
+
+          /* ──── HOLOGRAM PANEL ──── */
+          .vr-hologram-panel {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 32px 20px;
+            min-height: calc(100dvh - 170px);
+            position: relative;
+          }
+
+          .vr-holo-display {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 28px;
+            border: 1px solid rgba(87,231,255,0.28);
+            border-radius: 8px;
+            background: rgba(6, 13, 29, 0.6);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 16px rgba(87,231,255,0.1), inset 0 0 12px rgba(87,231,255,0.05);
+            width: 100%;
+            max-width: 280px;
+          }
+
+          /* Glass sheen */
+          .vr-card::before {
+            content: '';
+            position: absolute; inset: 0; z-index: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.035) 0%, transparent 58%);
+            pointer-events: none;
+          }
+            .vr-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+
+  border: 1px solid rgba(255,255,255,0.03);
+
+  pointer-events: none;
+}
+
+          .vr-card.is-hovered {
+  border-color: var(--cb, var(--cyan));
+
+  box-shadow:
+    0 22px 48px rgba(0,0,0,0.58),
+    0 0 0 1px var(--c),
+    0 0 24px rgba(87,231,255,0.14),
+    inset 0 0 18px rgba(255,255,255,0.03);
+
+  z-index: 4;
+}
+          /* Art zone */
+          .vr-card__art {
+            position: relative;
+            height: 110px;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+            grid-column: 1;
+          }
+          .vr-card__art-glow {
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at center, var(--cdim) 0%, transparent 68%);
+          }
+          .vr-card__art svg { position: relative; z-index: 1; }
+          .vr-card__arcana-num {
+            position: absolute; top: 7px; right: 9px;
+            font-family: var(--ff-title); font-size: 10px;
+            color: var(--c); opacity: 0.45; letter-spacing: 0.08em;
+          }
+
+          /* Body */
+          .vr-card__body {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column; gap: 8px;
+            padding: 14px 16px 16px;
+            border-top: 1px solid rgba(87,231,255,0.07);
+            flex: 1;
+            grid-column: 1;
+          }
+          .vr-card__arcana-label {
+            font-family: var(--ff-mono); font-size: 8.5px;
+            letter-spacing: 0.26em; color: var(--c); opacity: 0.7;
+          }
+          .vr-card__title {
+            font-family: var(--ff-title); font-size: 17px; font-weight: 400;
+            letter-spacing: 0.06em; color: var(--text-hi); line-height: 1.15;
+            text-transform: uppercase;
+          }
+          .vr-card__summary {
+            font-size: 12px; line-height: 1.42; color: var(--text-mid);
+          }
+          .vr-card__stack {
+            display: flex; flex-wrap: wrap; gap: 4px;
+          }
+
+          .vr-tag {
+            font-family: var(--ff-mono); font-size: 9px; letter-spacing: 0.07em;
+            padding: 3px 7px;
+            border: 1px solid rgba(87,231,255,0.16);
+            color: rgba(175,215,240,0.65);
+            background: rgba(6,13,29,0.82);
+          }
+
+          .vr-card__footer {
+            display: flex; align-items: flex-end;
+            justify-content: space-between; gap: 8px;
+            margin-top: auto; padding-top: 7px;
+            border-top: 1px solid rgba(87,231,255,0.06);
+          }
+          .vr-card__impact {
+            font-size: 10px; color: var(--text-lo); line-height: 1.4; flex: 1;
+          }
+
+          /* Hover scan sweep */
+          .vr-card__scan {
+            position: absolute; inset: 0; z-index: 2; pointer-events: none;
+            background: linear-gradient(180deg, transparent 42%, rgba(87,231,255,0.08) 100%);
+            opacity: 0; transition: opacity 0.3s ease;
+          }
+          .vr-card.is-hovered .vr-card__scan { opacity: 0.5; }
+
+          /* Corner brackets */
+          .vr-corner {
+            position: absolute; width: 11px; height: 11px;
+            border-style: solid; border-color: var(--c, var(--cyan));
+            opacity: 0; transition: opacity 0.3s ease;
+            pointer-events: none;
+          }
+          .vr-card.is-hovered .vr-corner,
+          .vr-summon-card .vr-corner { opacity: 0.65; }
+          .vr-corner--tl { top: 5px; left: 5px; border-width: 1px 0 0 1px; }
+          .vr-corner--tr { top: 5px; right: 5px; border-width: 1px 1px 0 0; }
+          .vr-corner--bl { bottom: 5px; left: 5px; border-width: 0 0 1px 1px; }
+          .vr-corner--br { bottom: 5px; right: 5px; border-width: 0 1px 1px 0; }
+
+          /* card */
+        .vr-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+
+  width: 100%;
+  max-width: 100%;
+  min-height: 360px;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(12, 22, 48, 0.98) 0%,
+      rgba(5, 10, 24, 0.98) 100%
+    );
+
+  border: 2px solid rgba(87,231,255,0.42);
+
+  box-shadow:
+    0 0 0 1px rgba(87,231,255,0.14),
+    0 16px 34px rgba(0,0,0,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
+  backdrop-filter: blur(10px);
+
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+          /* Hologram stats panel */
+          .vr-card__hologram {
+            position: relative;
+            z-index: 2;
+            grid-column: 2;
+            grid-row: 1 / -1;
+            display: flex; flex-direction: column; gap: 8px;
+            padding: 14px 10px;
+            background: linear-gradient(135deg, rgba(87,231,255,0.12) 0%, rgba(87,231,255,0.06) 100%);
+            border-left: 1px solid rgba(87,231,255,0.2);
+            backdrop-filter: blur(6px);
+            overflow: hidden;
+            align-content: start;
+            justify-content: flex-start;
+          }
+
+          .vr-holo-stat {
+            display: flex; flex-direction: column; gap: 3px;
+          }
+
+          .vr-holo-label {
+            font-family: var(--ff-mono);
+            font-size: 9px; letter-spacing: 0.2em;
+            color: var(--c);
+            opacity: 0.85;
+            text-transform: uppercase;
+            line-height: 1;
+          }
+
+          .vr-holo-bar {
+            height: 4px;
+            background: rgba(87,231,255,0.1);
+            border-radius: 2px;
+            overflow: hidden;
+          }
+
+          .vr-holo-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--c), rgba(87,231,255,0.6));
+            box-shadow: 0 0 4px var(--c);
+          }
+
+
+          .vr-empty {
+            grid-column: 1/-1;
+            padding: 40px; text-align: center;
+            font-family: var(--ff-mono); font-size: 10px; letter-spacing: 0.28em;
+            color: var(--text-lo);
+            border: 1px dashed rgba(87,231,255,0.12);
+          }
+
+          /* ──── INTRO OVERLAY ──── */
+          .vr-intro-layer {
+            position: fixed; inset: 0; z-index: 200;
+            display: flex; align-items: center; justify-content: center;
+            padding: clamp(16px, 3vw, 32px);
+            background: rgba(3,6,14,0.88);
+            backdrop-filter: blur(12px);
+          }
+
+          .vr-intro-card {
+            position: relative;
+            width: min(520px, 100%);
+            padding: 32px;
+            background: linear-gradient(155deg, #08122f 0%, #040a15 100%);
+            border: 1px solid var(--cyan);
+            box-shadow:
+              0 32px 64px rgba(0,0,0,0.5),
+              0 0 36px rgba(87,231,255,0.12);
+          }
+
+          .vr-intro-portraits {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 16px; margin-bottom: 20px;
+          }
+
+          .vr-intro-portrait {
+            display: flex; flex-direction: column; gap: 8px;
+            align-items: center;
+          }
+
+          .vr-intro-portrait img {
+            width: 100%; max-width: 140px; aspect-ratio: 1/1; object-fit: contain;
+            filter: drop-shadow(0 8px 24px rgba(87,231,255,0.2));
+          }
+
+          .vr-intro-portrait figcaption {
+            font-family: var(--ff-mono); font-size: 9px; letter-spacing: 0.26em;
+            color: var(--cyan);
+          }
+
+          .vr-intro-text {
+            padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+            margin-bottom: 18px;
+          }
+
+          .vr-intro-speaker {
+            font-family: var(--ff-mono); font-size: 8px; letter-spacing: 0.26em;
+            color: var(--cyan); margin-bottom: 6px;
+          }
+
+          .vr-intro-line {
+            font-size: 14px; line-height: 1.6; color: var(--text-mid);
+          }
+
+          .vr-intro-buttons {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; margin-top: 20px;
+          }
+
+          .vr-intro-btn {
+            padding: 10px 14px;
+            border: 1px solid var(--border-hi);
+            background: rgba(5,11,27,0.88);
+            color: var(--cyan);
+            font-family: var(--ff-mono); font-size: 10px; letter-spacing: 0.2em;
+            cursor: pointer; transition: all 0.2s;
+            text-transform: uppercase;
+          }
+
+          .vr-intro-btn:hover {
+            border-color: var(--cyan);
+            background: rgba(87,231,255,0.06);
+            box-shadow: 0 0 12px rgba(87,231,255,0.2);
+          }
+
+          .vr-intro-btn--back { color: rgba(239,71,111,0.8); border-color: rgba(239,71,111,0.4); }
+          .vr-intro-btn--back:hover { border-color: var(--red); color: var(--red); background: rgba(239,71,111,0.06); }
+
+          .vr-intro-btn--continue { color: var(--cyan); border-color: var(--border-hi); }
+          .vr-intro-btn--continue:hover { background: rgba(87,231,255,0.08); }
+
+          /* Fade to black transition */
+          .vr-fade-black {
+            position: fixed; inset: 0; z-index: 199;
+            background: #000;
+            pointer-events: none;
+          }
+
+          .vr-footer {
+  position: fixed;
+  bottom: 20px;
+  right: 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+
+  padding: 8px 10px;
+
+  border-radius: 10px;
+
+  border: 1px solid rgba(255,255,255,0.28);
+
+  background: rgba(0,0,0,0.58);
+
+  box-shadow:
+    0 8px 22px rgba(0,0,0,0.55),
+    0 0 18px rgba(87,231,255,0.08);
+
+  backdrop-filter: blur(4px);
+
+  z-index: 50;
+
+  opacity: 0;
+  transform: translateY(8px);
+
+  transition:
+    opacity 0.45s ease,
+    transform 0.45s ease;
+}
+
+.vr-footer.mounted {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vr-footer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Bebas Neue', sans-serif;
+
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px;
+  letter-spacing: 2.2px;
+
+  color: rgba(255,255,255,0.9);
+
+  text-shadow:
+    0 1px 2px rgba(0,0,0,0.9);
+}
+
+.vr-footer-key {
+  border: 1px solid rgba(255,255,255,0.55);
+font-family: 'Bebas Neue', sans-serif;
+  border-radius: 5px;
+
+  background: rgba(0,0,0,0.72);
+
+  color: #fff;
+
+  padding: 2px 8px;
+
+  font-size: 14px;
+
+  min-width: 40px;
+  text-align: center;
+
+  box-shadow:
+    inset 0 0 6px rgba(255,255,255,0.04);
+}
+
+          /* ──── MOUSE CURSOR ──── */
+          .vr-cursor {
+            position: fixed;
+
+            padding: 10px;
+            border: 1px solid var(--border-hi);
+            background: transparent;
+            color: var(--cyan);
+            font-family: var(--ff-mono); font-size: 10px; letter-spacing: 0.2em;
+            cursor: pointer; transition: all 0.2s;
+          }
+          .vr-intro-close:hover {
+            border-color: var(--cyan);
+            background: rgba(87,231,255,0.06);
+          }
+
+          /* ──── SUMMON OVERLAY ──── */
+          .vr-summon-layer {
+            position: fixed; inset: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            padding: clamp(16px, 3vw, 32px);
+            background: rgba(3,6,14,0.78);
+            backdrop-filter: blur(10px) saturate(116%);
+          }
+
+          .vr-summon-card {
+            position: relative;
+            width: min(880px, 100%);
+            background: linear-gradient(155deg, #08122f 0%, #040a15 100%);
+            border: 1px solid var(--c);
+            box-shadow:
+              0 36px 74px rgba(0,0,0,0.5),
+              0 0 0 1px rgba(0,0,0,0.4),
+              0 0 36px var(--cdim);
+            overflow: hidden;
+          }
+
+          .vr-summon-card__glow {
+            position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(ellipse 80% 50% at 20% 10%, var(--cdim) 0%, transparent 60%);
+          }
+
+          .vr-summon-card__head {
+            display: grid; grid-template-columns: 110px 1fr auto;
+            gap: 18px; padding: 22px; align-items: start;
+          }
+
+          .vr-summon-card__art {
+            position: relative; width: 110px; height: 110px;
+            background: radial-gradient(ellipse at center, var(--cdim) 0%, transparent 70%);
+            display: flex; align-items: center; justify-content: center;
+          }
+          .vr-summon-card__art svg { width: 100%; height: 100%; }
+          .vr-summon-card__arcana-num {
+            position: absolute; bottom: 4px; right: 6px;
+            font-family: var(--ff-title); font-size: 9px;
+            color: var(--c); opacity: 0.45;
+          }
+
+          .vr-summon-card__info { display: flex; flex-direction: column; gap: 7px; }
+          .vr-summon-card__label {
+            font-family: var(--ff-mono); font-size: 8.5px; letter-spacing: 0.3em;
+            color: var(--c); opacity: 0.65;
+          }
+          .vr-summon-card__title {
+            font-family: var(--ff-title);
+            font-size: clamp(20px, 3vw, 34px);
+            font-weight: 400; letter-spacing: 0.06em;
+            color: var(--text-hi); line-height: 1.1;
+            text-shadow: 0 0 30px var(--cdim);
+            text-transform: uppercase;
+          }
+          .vr-summon-card__stack { display: flex; flex-wrap: wrap; gap: 5px; }
+
+          .vr-summon-card__close {
+            font-family: var(--ff-mono); font-size: 9.5px; letter-spacing: 0.2em;
+            padding: 7px 11px;
+            border: 1px solid rgba(87,231,255,0.22);
+            background: transparent; color: var(--text-lo);
+            cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+          }
+          .vr-summon-card__close:hover { border-color: var(--c); color: var(--c); }
+
+          .vr-summon-card__divider {
+            height: 1px; margin: 0 22px;
+            background: linear-gradient(90deg, transparent, var(--c), transparent);
+            opacity: 0.28;
+          }
+
+          .vr-summon-card__details {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 14px; padding: 18px 22px;
+          }
+
+          .vr-detail-block { display: flex; flex-direction: column; gap: 7px; }
+          .vr-detail-label {
+            font-family: var(--ff-mono); font-size: 8.5px; letter-spacing: 0.26em;
+            color: var(--c); opacity: 0.65;
+          }
+          .vr-detail-text { font-size: 13px; line-height: 1.65; color: var(--text-mid); }
+          .vr-detail-text--impact { color: var(--text-hi); font-size: 14px; }
+
+          .vr-summon-card__actions {
+            display: flex; flex-wrap: wrap; gap: 9px;
+            padding: 14px 22px 22px;
+          }
+
+          .vr-action-link {
+            display: inline-flex; align-items: center;
+            padding: 9px 16px;
+            border: 1px solid rgba(87,231,255,0.35);
+            background: rgba(7,14,33,0.85);
+            color: var(--cyan); text-decoration: none;
+            font-family: var(--ff-mono); font-size: 9.5px; letter-spacing: 0.2em;
+            transition: background 0.2s;
+          }
+          .vr-action-link:hover { background: rgba(87,231,255,0.08); }
+
+          /* ──── KEYFRAMES ──── */
+          @keyframes vr-breathe {
+            0%, 100% { opacity: 0.62; transform: scale(1); }
+            50%       { opacity: 0.9; transform: scale(1.04); }
+          }
+
+          @keyframes vr-pulse {
+            0%, 100% { opacity: 0.45; }
+            50%       { opacity: 1; }
+          }
+
+          @keyframes vr-blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+          }
+
+          @media (max-width: 768px) {
+            .vr-layout {
+              min-height: calc(100dvh - 140px);
+            }
+            .vr-compendium {
+              grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+              gap: 10px;
+              padding: 16px;
+            }
+          }
+        `}</style>
+      </div>
+  );
+}
