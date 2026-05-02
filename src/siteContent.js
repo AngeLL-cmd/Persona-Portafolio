@@ -351,10 +351,10 @@ export const categoriasHabilidades = [
     titulo: "Lenguajes",
     imagen: habImgLenguajes,
     lista: [
-      { nombre: "Python", nivel: 5 },
+      { nombre: "Python", nivel: 4 },
       { nombre: "JavaScript / TypeScript", nivel: 4 },
       { nombre: "SQL", nivel: 4 },
-      { nombre: "Java", nivel: 4 },
+      { nombre: "Java", nivel: 3 },
       { nombre: "PHP", nivel: 4 },
       { nombre: "C++", nivel: 2 },
     ],
@@ -364,13 +364,13 @@ export const categoriasHabilidades = [
     titulo: "Frameworks y librerías",
     imagen: habImgFrameworks,
     lista: [
-      { nombre: "React", nivel: 5 },
+      { nombre: "React", nivel: 4 },
       { nombre: "Vite", nivel: 4 },
       { nombre: "React Router DOM", nivel: 4 },
       { nombre: "Framer Motion", nivel: 4 },
-      { nombre: "Next.js", nivel: 4 },
-      { nombre: "Node.js", nivel: 4 },
-      { nombre: "Spring Boot", nivel: 4 },
+      { nombre: "Next.js", nivel: 3 },
+      { nombre: "Node.js", nivel: 3 },
+      { nombre: "Spring Boot", nivel: 2 },
       { nombre: "Yii2", nivel: 4 },
       { nombre: "Composer", nivel: 4 },
     ],
@@ -380,7 +380,7 @@ export const categoriasHabilidades = [
     titulo: "Nube y DevOps",
     imagen: habImgCloud,
     lista: [
-      { nombre: "Git / GitHub", nivel: 5 },
+      { nombre: "Git / GitHub", nivel: 4 },
     { nombre: "CI/CD básico (deploy en Vercel / Netlify / GitHub Pages)", nivel: 3 },
     { nombre: "Supabase (Backend as a Service)", nivel: 4 }
       
@@ -391,7 +391,7 @@ export const categoriasHabilidades = [
     titulo: "IA / ML",
     imagen: habImgMl,
     lista: [
-      { nombre: "Scikit-Learn", nivel: 4 },
+      { nombre: "Scikit-Learn", nivel: 3 },
       { nombre: "PyTorch", nivel: 3 },
       { nombre: "TensorFlow", nivel: 3 },
       { nombre: "Hugging Face", nivel: 3 }
