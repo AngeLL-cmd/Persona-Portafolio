@@ -147,7 +147,7 @@ export default function VelvetRoomProjects() {
 
   const [lockedHoverId, setLockedHoverId] = useState(null);
 
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro, setShowIntro] = useState(false);
   const [introStep, setIntroStep] = useState(0);
 
   const filtered = PROJECTS;

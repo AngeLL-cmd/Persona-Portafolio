@@ -134,8 +134,8 @@ export const sobreMi = {
 
 export const experienciaUi = {
   codigoCabecera: "NOMBRE EN CLAVE: Angel Morales",
-  titulo: "ARCHIVO DE MISIONES",
-  subtitulo: "RUTA SELECCIONADA: Desarrollo / Ingeniería (personalízalo)",
+  titulo: "ARCHIVO DE PROYECTOS",
+  subtitulo: "Ingeniero De Software AI",
   logTitulo: "REGISTRO",
   archivoPrevio: "◀ ARCHIVO ANTERIOR",
   archivoSiguiente: "SIGUIENTE ARCHIVO ▶",
@@ -169,7 +169,7 @@ export const experienciaUi = {
 export const experiencias = [
   {
     id: "mission-01",
-    codigoMision: "MISIÓN_01",
+    codigoMision: "Proyecto 1",
     operacion: "INSTITUCION EDUCATIVA",
     rol: "Software Developer (Full Stack)",
     organizacion: "CODAINI",
@@ -188,7 +188,7 @@ export const experiencias = [
   },
   {
     id: "mission-02",
-    codigoMision: "MISIÓN_02",
+    codigoMision: "Proyecto 2",
     operacion: "Sistema de votación",
     rol: "Software Developer (Full Stack)",
     organizacion: "Senati",
@@ -203,7 +203,7 @@ export const experiencias = [
   },
   {
     id: "mission-03",
-    codigoMision: "MISIÓN_03",
+    codigoMision: "Proyecto 3",
     operacion: "PORTAFOLIO PERSONALIZADO",
     rol: "Frontend Developer",
     organizacion: "Proyecto personal (Angel Morales)",
