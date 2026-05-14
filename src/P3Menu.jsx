@@ -111,7 +111,7 @@ export default function P3Menu({ onNavigate }) {
           display: flex;
           flex-direction: column;
           align-items: center;
-          pointer-events: all;
+          pointer-events: auto;
         }
 
         .p3-row {

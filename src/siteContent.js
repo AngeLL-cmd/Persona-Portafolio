@@ -17,11 +17,6 @@ import sobreMiPersonaje1 from "./assets/char1.png";
 import sobreMiPersonaje2 from "./assets/char2.png";
 import sobreMiPersonaje3 from "./assets/char3.png";
 
-// ----- Experiencia -----
-import expVisualA from "./assets/elizabeth.png";
-import expVisualB from "./assets/chidori.png";
-import expVisualC from "./assets/shinjiro.png";
-
 // ----- Proyectos (intro velada) -----
 import imgGuiaIntro from "./assets/igor.png";
 import imgAsistenteIntro from "./assets/elizabeth-2.png";
@@ -99,7 +94,7 @@ export const sobreMi = {
         "Me interesa Python, React, JavaScript, PHP, MySQL y Java.",
         "Interés en desarrollo backend y creación de sistemas.",
       ],
-      inferior: "Apasionado por la tecnología y el desarrollo de sistemas",
+      inferior: "Aprendiendo, programando y construyendo.",
     },
     {
       superior: [
@@ -120,8 +115,8 @@ export const sobreMi = {
     },
   ],
   ayuda: {
-    seleccionar: "SELECCIONAR",
-    revelar: "MOSTRAR",
+    seleccionar: "SELECCIONAR (↑↓ O RATÓN)",
+    revelar: "MOSTRAR (↵ O CLIC)",
     volver: "ATRÁS",
   },
   movil: {
@@ -151,6 +146,8 @@ export const experienciaUi = {
     estadoEntrante: "PRÓXIMA",
     liderMision: "REFERENCIA",
   },
+  /** Texto accesible del panel derecho (contexto del caso, sin foto). */
+  lateralAria: "Contexto del expediente",
   /** Valores internos de `estado` en cada misión → texto mostrado */
   textoPorEstado: {
     COMPLETE: "COMPLETADA",
@@ -164,7 +161,8 @@ export const experienciaUi = {
 };
 
 /**
- * ids usados solo para estilos (`.mission-12`): mission-01 y mission-02 comparten marco visual.
+ * Cada entrada es una experiencia en /experience.
+ * Opcional: `visual` (import de imagen). Si no se define, el panel derecho muestra solo datos del caso.
  */
 export const experiencias = [
   {
@@ -184,7 +182,6 @@ export const experiencias = [
       "Integración de buscador inteligente con IA",
     ],
     habilidadesDesbloqueadas: ["Desarrollo web full stack", "Programación en PHP", "Diseño e implementación de bases de datos"],
-    visual: expVisualC,
   },
   {
     id: "mission-02",
@@ -199,7 +196,6 @@ export const experiencias = [
     tecnologias: ["TypeScript", "JavaScript", "Java", "Supabase", "API REST"],
     logros: ["Hecho Sistema de votación con autenticación por DNI y tiempo limitado", "Dashboard interactivo con resultados en tiempo real y visualización de porcentajes", "Módulo de análisis estadístico (tendencias, participación y detección de anomalías)", "Limpieza y validación de datos (nulos y duplicados)", "Generación y exportación de reportes del sistema"],
     habilidadesDesbloqueadas: ["Desarrollo full stack", "Diseño de sistemas en tiempo real", "Análisis y procesamiento de datos", "Visualización de datos", "Validación y limpieza de datos", "Implementación de lógica de negocio compleja", "Gestión de autenticación y control de acceso"],
-    visual: expVisualA,
   },
   {
     id: "mission-03",
@@ -228,7 +224,6 @@ export const experiencias = [
       "Manejo de rutas en aplicaciones SPA",
       "Organización de contenido dinámico",
     ],
-    visual: expVisualB,
   },
 ];
 

@@ -23,31 +23,33 @@ export default function AboutMe() {
 
  useEffect(() => {
    const onKey = (e) => {
-     if (e.key === "ArrowUp") {
-       setRevealed(false);
-       setActive(i => Math.max(0, i - 1));
+     if (revealed) {
+       if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Enter") return;
+     } else {
+       if (e.key === "ArrowUp") {
+         setActive((i) => Math.max(0, i - 1));
+       }
+       if (e.key === "ArrowDown") {
+         setActive((i) => Math.min(ITEMS.length - 1, i + 1));
+       }
+       if (e.key === "Enter") setRevealed(true);
      }
-     if (e.key === "ArrowDown") {
-       setRevealed(false);
-       setActive(i => Math.min(ITEMS.length - 1, i + 1));
-     }
-     if (e.key === "Enter") setRevealed(true);
 
      if (e.key === "Escape") {
-  if (revealed) {
-    setRevealed(false);
-  } else {
-    navigate(-1);
-  }
-}
+       if (revealed) {
+         setRevealed(false);
+       } else {
+         navigate(-1);
+       }
+     }
    };
    window.addEventListener("keydown", onKey);
    return () => window.removeEventListener("keydown", onKey);
- }, [active, navigate, revealed]);
+ }, [navigate, revealed]);
 
 
  return (
-   <div id="menu-screen">
+   <div id="menu-screen" className={revealed ? "sc-nav-reveal-locked" : undefined}>
      <video src={sobreMi.videoFondo} autoPlay loop muted playsInline disablePictureInPicture />
      {revealed && <div key={`dim-${active}`} className="sc-dim" />}
      {revealed && (
@@ -78,6 +80,12 @@ export default function AboutMe() {
 
      <style>{`
        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,700;1,700&display=swap');
+
+       /* Con el panel abierto no se cambia de categoría con ratón hasta cerrar (ESC / móvil). */
+       #menu-screen.sc-nav-reveal-locked .sc-bar-hit {
+         pointer-events: none;
+         cursor: default;
+       }
 
 
        .sc-root {
@@ -272,9 +280,10 @@ export default function AboutMe() {
          display: block;
          width: 45vw;
          flex-shrink: 0;
-         pointer-events: none;
+         pointer-events: auto;
          transform: translateX(-100%);
          transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+         isolation: isolate;
        }
        .sc-bar-outer.active .sc-bar     { height: 90px; }
        .sc-bar-outer.active .sc-bar-red { height: 90px; }
@@ -282,6 +291,32 @@ export default function AboutMe() {
        .sc-bar-outer:nth-child(1) { transition-delay: 0ms; }
        .sc-bar-outer:nth-child(2) { transition-delay: 80ms; }
        .sc-bar-outer:nth-child(3) { transition-delay: 160ms; }
+
+       /* Capa rectangular encima de la barra: el clip-path del .sc-bar no siempre coincide con el hit-test del ratón entre navegadores. */
+       .sc-bar-hit {
+         position: absolute;
+         inset: 0;
+         z-index: 55;
+         box-sizing: border-box;
+         width: 100%;
+         height: 100%;
+         margin: 0;
+         padding: 0;
+         border: 0;
+         border-radius: 0;
+         background: transparent;
+         cursor: pointer;
+         pointer-events: auto;
+         appearance: none;
+         -webkit-appearance: none;
+       }
+       .sc-bar-hit:focus {
+         outline: none;
+       }
+       .sc-bar-hit:focus-visible {
+         outline: 2px solid rgba(125, 212, 252, 0.95);
+         outline-offset: 2px;
+       }
 
 
        .sc-bar-red {
@@ -352,6 +387,7 @@ export default function AboutMe() {
          display: flex; align-items: center;
          justify-content: space-between;
          padding: 0 20px;
+         pointer-events: none;
        }
 
 
@@ -364,6 +400,7 @@ export default function AboutMe() {
          transform: rotate(-30deg);
          user-select: none; line-height: 1;
          padding: 0 16px 0 8px;
+         pointer-events: none;
        }
 
 
@@ -372,6 +409,7 @@ export default function AboutMe() {
          display: flex; flex-direction: column;
          align-items: center; justify-content: center;
          gap: 3px; padding-left: 78px;
+         pointer-events: none;
        }
        .sc-main-top {
          display: flex; align-items: center; gap: 12px;
@@ -385,6 +423,7 @@ export default function AboutMe() {
          color: rgba(255,255,255,0.85);
          transition: color 0.2s ease;
          user-select: none;
+         pointer-events: none;
        }
        .sc-bar-outer.active .sc-label { color: #111111; }
 
@@ -481,7 +520,7 @@ export default function AboutMe() {
            bottom: max(8px, env(safe-area-inset-bottom));
            z-index: 18; display: flex;
            align-items: center; justify-content: space-between;
-           gap: 8px; pointer-events: all;
+           gap: 8px; pointer-events: auto;
          }
        }
 
@@ -517,6 +556,21 @@ export default function AboutMe() {
                </div>
              </div>
            </div>
+           <button
+             type="button"
+             className="sc-bar-hit"
+             tabIndex={-1}
+             aria-label={`${ROLES[i].texto}: ${item.etiqueta}`}
+             onMouseEnter={() => {
+               if (!revealed) setActive(i);
+             }}
+             onClick={() => {
+               if (revealed) return;
+               setActive(i);
+               setRevealed(true);
+             }}
+           >
+           </button>
          </div>
        ))}
      </div>

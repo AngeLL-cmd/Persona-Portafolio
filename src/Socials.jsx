@@ -78,8 +78,7 @@ export default function Socials() {
           height: 64px;
           transition: height 0.3s cubic-bezier(0.22,1,0.36,1);
           background: #111;
-          cursor: pointer;
-          pointer-events: all;
+          pointer-events: none;
           clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
           box-shadow: 0 6px 24px rgba(0,0,0,0.65);
           z-index: 1;
@@ -87,9 +86,12 @@ export default function Socials() {
 
         .sc-bar-outer {
           position: relative;
+          display: block;
+          width: 45vw;
           flex-shrink: 0;
           transform: translateX(-100%);
           transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+          isolation: isolate;
         }
         .sc-bar-outer.active .sc-bar     { height: 90px; }
         .sc-bar-outer.active .sc-bar-red { height: 90px; }
@@ -97,6 +99,31 @@ export default function Socials() {
         .sc-bar-outer:nth-child(1) { transition-delay: 0ms; }
         .sc-bar-outer:nth-child(2) { transition-delay: 80ms; }
         .sc-bar-outer:nth-child(3) { transition-delay: 160ms; }
+
+        .sc-bar-hit {
+          position: absolute;
+          inset: 0;
+          z-index: 55;
+          box-sizing: border-box;
+          width: 100%;
+          height: 100%;
+          margin: 0;
+          padding: 0;
+          border: 0;
+          border-radius: 0;
+          background: transparent;
+          cursor: pointer;
+          pointer-events: auto;
+          appearance: none;
+          -webkit-appearance: none;
+        }
+        .sc-bar-hit:focus {
+          outline: none;
+        }
+        .sc-bar-hit:focus-visible {
+          outline: 2px solid rgba(125, 212, 252, 0.95);
+          outline-offset: 2px;
+        }
 
         .sc-bar-red {
           position: absolute;
@@ -121,6 +148,7 @@ export default function Socials() {
           clip-path: polygon(100% 0, 100% 0, calc(100% - 32px) 100%, calc(100% - 32px) 100%);
           transition: clip-path 0.35s cubic-bezier(0.22, 1, 0.36, 1);
           z-index: 0;
+          pointer-events: none;
         }
         .sc-bar-outer.active .sc-bar-fill {
           clip-path: polygon(22% 0, 100% 0, calc(100% - 14px) 100%, calc(22% + 138px) 100%);
@@ -157,6 +185,7 @@ export default function Socials() {
           align-items: center;
           justify-content: space-between;
           padding: 0 20px 0 20px;
+          pointer-events: none;
         }
 
         .sc-role {
@@ -171,6 +200,7 @@ export default function Socials() {
           user-select: none;
           line-height: 1;
           padding: 0 16px 0 8px;
+          pointer-events: none;
         }
 
         .sc-main {
@@ -180,6 +210,7 @@ export default function Socials() {
           align-items: center;
           justify-content: center;
           gap: 3px;
+          pointer-events: none;
         }
         .sc-main-top {
           display: flex;
@@ -196,6 +227,7 @@ export default function Socials() {
           color: rgba(255,255,255,0.15);
           transition: color 0.2s ease;
           user-select: none;
+          pointer-events: none;
         }
         .sc-bar-outer.active .sc-icon { color: rgba(255,255,255,0.25); }
 
@@ -207,6 +239,7 @@ export default function Socials() {
           color: rgba(255,255,255,0.85);
           transition: color 0.2s ease;
           user-select: none;
+          pointer-events: none;
         }
         .sc-bar-outer.active .sc-label { color: #111111; }
 
@@ -242,6 +275,7 @@ export default function Socials() {
           gap: 10px;
           padding-right: 24px;
           flex-shrink: 0;
+          pointer-events: none;
         }
 
         .sc-stat {
@@ -379,7 +413,7 @@ export default function Socials() {
             align-items: center;
             justify-content: space-between;
             gap: 8px;
-            pointer-events: all;
+            pointer-events: auto;
           }
         }
       `}</style>
@@ -389,14 +423,9 @@ export default function Socials() {
           <div
             key={item.id}
             className={`sc-bar-outer${active === i ? " active" : ""}${mounted ? " mounted" : ""}`}
-            onClick={() => {
-              if (active === i) openExternalLink(item.href);
-              else setActive(i);
-            }}
-            onMouseEnter={() => setActive(i)}
           >
             <div className="sc-bar-red" />
-            <div className="sc-bar">
+            <div className="sc-bar" aria-hidden="true">
               <img className="sc-char" src={CHARS[i]} alt="" />
               <div className="sc-bar-fill" />
               <div className="sc-bar-shade" />
@@ -424,6 +453,18 @@ export default function Socials() {
                 </div>
               </div>
             </div>
+            <button
+              type="button"
+              className="sc-bar-hit"
+              tabIndex={-1}
+              aria-label={`${ROLES[i].texto}: ${item.etiqueta}`}
+              onMouseEnter={() => setActive(i)}
+              onClick={() => {
+                if (active === i) openExternalLink(item.href);
+                else setActive(i);
+              }}
+            >
+            </button>
           </div>
         ))}
       </div>

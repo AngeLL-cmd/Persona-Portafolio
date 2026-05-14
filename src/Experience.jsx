@@ -5,6 +5,12 @@ import { experienciaUi, experiencias } from "./siteContent";
 
 const MISSIONS = experiencias;
 
+function flattenTech(tecnologias) {
+  return tecnologias.flatMap((s) =>
+    s.split(",").map((t) => t.trim()).filter(Boolean)
+  );
+}
+
 function statusClass(status) {
   if (status === "COMPLETE") return "done";
   if (status === "INCOMING") return "incoming";
@@ -48,8 +54,7 @@ export default function Experience({ src }) {
   const movePrev = () => setActive((i) => (i - 1 + MISSIONS.length) % MISSIONS.length);
   const moveNext = () => setActive((i) => (i + 1) % MISSIONS.length);
 
-  const missionFrameClass =
-    current.id === "mission-01" || current.id === "mission-02" ? "mission-12" : "";
+  const techTokens = flattenTech(current.tecnologias);
 
   return (
     <div id="menu-screen" className="exp-screen">
@@ -166,12 +171,27 @@ export default function Experience({ src }) {
             </article>
           </main>
 
-          <section className="exp-visual" aria-label="Imagen de la experiencia">
-            <div
-              key={current.id}
-              className={`exp-visual-frame ${missionFrameClass}`}
-            >
-              <img src={current.visual} alt={`${current.organizacion}`} />
+          <section className="exp-visual" aria-label={t.lateralAria}>
+            <div key={current.id} className="exp-visual-frame">
+              {current.visual ? (
+                <img src={current.visual} alt="" />
+              ) : (
+                <div className="exp-visual-placeholder">
+                  <div className="exp-visual-ph-inner">
+                    <p className="exp-visual-ph-code">{current.codigoMision}</p>
+                    <p className="exp-visual-ph-op">{current.operacion}</p>
+                    <p className="exp-visual-ph-org">{current.organizacion}</p>
+                    <p className="exp-visual-ph-tech-title">{t.etiquetasTarjeta.tech}</p>
+                    <div className="exp-visual-ph-chips">
+                      {techTokens.map((tok, idx) => (
+                        <span className="exp-visual-ph-chip" key={`${current.id}-ph-${idx}`}>
+                          {tok}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="exp-visual-gradient" />
              <div className="exp-visual-scan" />
               <div className="exp-visual-label">
@@ -695,21 +715,76 @@ export default function Experience({ src }) {
           justify-content: center;
         }
 
-.exp-visual-frame.mission-12 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+        .exp-visual-placeholder {
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 28px 18px 110px;
+          box-sizing: border-box;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+        }
 
-.exp-visual-frame.mission-12 img {
-  height: 95%;
-  width: auto;
-  max-width: 90%;
-  object-fit: cover;
-  object-position: center 65%;
-  display: block;
-  margin: auto;
-}
+        .exp-visual-ph-inner {
+          width: 100%;
+          max-width: 300px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .exp-visual-ph-code {
+          margin: 0;
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: clamp(22px, 1.8vw, 30px);
+          letter-spacing: 2px;
+          color: rgba(180, 235, 255, 0.95);
+        }
+
+        .exp-visual-ph-op {
+          margin: 0;
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: clamp(14px, 1.1vw, 18px);
+          letter-spacing: 1.5px;
+          color: rgba(255, 255, 255, 0.82);
+        }
+
+        .exp-visual-ph-org {
+          margin: 0;
+          font-family: 'Anton', sans-serif;
+          font-size: clamp(20px, 1.6vw, 28px);
+          letter-spacing: 1px;
+          color: #ffffff;
+          line-height: 1.15;
+        }
+
+        .exp-visual-ph-tech-title {
+          margin: 10px 0 0;
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: 13px;
+          letter-spacing: 2px;
+          color: rgba(190, 240, 255, 0.75);
+        }
+
+        .exp-visual-ph-chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .exp-visual-ph-chip {
+          font-family: 'Bebas Neue', sans-serif;
+          font-size: 12px;
+          letter-spacing: 0.6px;
+          padding: 4px 8px;
+          border: 1px solid rgba(120, 210, 255, 0.35);
+          background: rgba(6, 22, 48, 0.75);
+          color: rgba(255, 255, 255, 0.9);
+        }
 
         .exp-visual-frame img {
           width: 100%;
