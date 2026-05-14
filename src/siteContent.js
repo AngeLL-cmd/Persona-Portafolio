@@ -317,7 +317,7 @@ export const proyectosLista = [
     impacto: "Demuestra habilidades avanzadas en frontend, diseño UI/UX y animaciones web modernas.",
     detalles:
       "Desarrollo de SPA con React y Vite, utilizando React Router para navegación sin recarga y Framer Motion para animaciones avanzadas. Diseño inspirado en interfaz de videojuego con experiencia inmersiva. Implementación de sistema centralizado de contenido mediante siteContent.js para fácil mantenimiento. Integración de audio, video y transiciones dinámicas para mejorar la experiencia de usuario.",
-    enlace: "https://github.com/AngeLL-cmd/Portafolio-Persona3.git"
+    enlace: "https://github.com/AngeLL-cmd/Persona-Portafolio.git"
   },
 ];
 
