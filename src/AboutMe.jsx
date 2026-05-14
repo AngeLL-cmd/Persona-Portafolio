@@ -9,76 +9,76 @@ const ROLES = sobreMi.rolesBarra;
 const ITEMS = sobreMi.seccionesMenu;
 
 export default function AboutMe() {
- const [active, setActive]     = useState(0);
- const [mounted, setMounted]   = useState(false);
- const [revealed, setRevealed] = useState(false);
- const navigate = useNavigate();
+  const [active, setActive] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+  const navigate = useNavigate();
 
 
- useEffect(() => {
-   const t = setTimeout(() => setMounted(true), 60);
-   return () => clearTimeout(t);
- }, []);
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 60);
+    return () => clearTimeout(t);
+  }, []);
 
 
- useEffect(() => {
-   const onKey = (e) => {
-     if (revealed) {
-       if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Enter") return;
-     } else {
-       if (e.key === "ArrowUp") {
-         setActive((i) => Math.max(0, i - 1));
-       }
-       if (e.key === "ArrowDown") {
-         setActive((i) => Math.min(ITEMS.length - 1, i + 1));
-       }
-       if (e.key === "Enter") setRevealed(true);
-     }
+  useEffect(() => {
+    const onKey = (e) => {
+      if (revealed) {
+        if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Enter") return;
+      } else {
+        if (e.key === "ArrowUp") {
+          setActive((i) => Math.max(0, i - 1));
+        }
+        if (e.key === "ArrowDown") {
+          setActive((i) => Math.min(ITEMS.length - 1, i + 1));
+        }
+        if (e.key === "Enter") setRevealed(true);
+      }
 
-     if (e.key === "Escape") {
-       if (revealed) {
-         setRevealed(false);
-       } else {
-         navigate(-1);
-       }
-     }
-   };
-   window.addEventListener("keydown", onKey);
-   return () => window.removeEventListener("keydown", onKey);
- }, [navigate, revealed]);
-
-
- return (
-   <div id="menu-screen" className={revealed ? "sc-nav-reveal-locked" : undefined}>
-     <video src={sobreMi.videoFondo} autoPlay loop muted playsInline disablePictureInPicture />
-     {revealed && <div key={`dim-${active}`} className="sc-dim" />}
-     {revealed && (
-       <div key={`panel-${active}`} className={`sc-reveal-panel${mounted ? " mounted" : ""}`}>
-         <div className="sc-reveal-upper-bar">
-           {REVEAL_CONTENT[active].superior.map((linea, idx) => (
-             <div className="sc-reveal-upper-line" key={`${active}-l-${idx}`}>{linea}</div>
-           ))}
-         </div>
-         <div className="sc-reveal-lower-bar">{REVEAL_CONTENT[active].inferior}</div>
-       </div>
-     )}
-     {revealed && (
-       <div key={`nav-${active}`} className="sc-right-nav">
-         <span className="sc-nav-arrow left">◄</span>
-         <span className="sc-nav-btn">LB</span>
-         <span className="sc-nav-dot" />
-         <span className="sc-nav-btn">RB</span>
-         <span className="sc-nav-arrow right">►</span>
-       </div>
-     )}
-     {revealed && (
-       <div key={`portrait-${active}`} className={`sc-main-portrait-shell${mounted ? " mounted" : ""}`}>
-         <img className="sc-main-portrait" src={MAIN_IMAGES[active]} alt="" />
-       </div>
-     )}
+      if (e.key === "Escape") {
+        if (revealed) {
+          setRevealed(false);
+        } else {
+          navigate(-1);
+        }
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [navigate, revealed]);
 
 
-     <style>{`
+  return (
+    <div id="menu-screen" className={revealed ? "sc-nav-reveal-locked" : undefined}>
+      <video src={sobreMi.videoFondo} autoPlay loop muted playsInline disablePictureInPicture />
+      {revealed && <div key={`dim-${active}`} className="sc-dim" />}
+      {revealed && (
+        <div key={`panel-${active}`} className={`sc-reveal-panel${mounted ? " mounted" : ""}`}>
+          <div className="sc-reveal-upper-bar">
+            {REVEAL_CONTENT[active].superior.map((linea, idx) => (
+              <div className="sc-reveal-upper-line" key={`${active}-l-${idx}`}>{linea}</div>
+            ))}
+          </div>
+          <div className="sc-reveal-lower-bar">{REVEAL_CONTENT[active].inferior}</div>
+        </div>
+      )}
+      {revealed && (
+        <div key={`nav-${active}`} className="sc-right-nav">
+          <span className="sc-nav-arrow left">◄</span>
+          <span className="sc-nav-btn">LB</span>
+          <span className="sc-nav-dot" />
+          <span className="sc-nav-btn">RB</span>
+          <span className="sc-nav-arrow right">►</span>
+        </div>
+      )}
+      {revealed && (
+        <div key={`portrait-${active}`} className={`sc-main-portrait-shell${mounted ? " mounted" : ""}`}>
+          <img className="sc-main-portrait" src={MAIN_IMAGES[active]} alt="" />
+        </div>
+      )}
+
+
+      <style>{`
        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,700;1,700&display=swap');
 
        /* Con el panel abierto no se cambia de categoría con ratón hasta cerrar (ESC / móvil). */
@@ -197,28 +197,35 @@ export default function AboutMe() {
        }
        .sc-reveal-upper-bar {
          position: absolute;
-         top: 10%; left: 0;
-         width: 100%; height: 40%;
+         top: 8%; left: 0;
+         width: 100%; height: 48%;
          background: rgba(0,0,0,0.92);
          clip-path: polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%);
          display: flex;
          flex-direction: column;
          align-items: center;
          justify-content: center;
-         gap: 10px;
+         gap: 6px;
          color: #fff;
          text-align: center;
+         overflow: hidden;
+         padding: 8px 10% 8px 4%;
+         box-sizing: border-box;
        }
        .sc-reveal-upper-line {
          font-family: 'Bebas Neue', sans-serif;
-         font-size: clamp(18px, 1.65vw, 27px);
-         letter-spacing: 1px;
-         line-height: 1.15;
+         font-size: clamp(14px, 1.28vw, 21px);
+         letter-spacing: 0.5px;
+         line-height: 1.12;
+         width: 100%;
+         word-break: break-word;
+         overflow-wrap: break-word;
+         box-sizing: border-box;
        }
        .sc-reveal-lower-bar {
          position: absolute;
-         top: 58%; right: 0;
-         width: 48%; min-height: 20%; max-height: 34%;
+         top: 62%; right: 0;
+         width: 48%; min-height: 18%; max-height: 30%;
          background: rgba(0,0,0,0.92);
          clip-path: polygon(0 0, 100% 0, calc(100% - 22px) 100%, 0 100%);
          display: flex;
@@ -226,12 +233,15 @@ export default function AboutMe() {
          justify-content: flex-start;
          color: #fff;
          font-family: 'Bebas Neue', sans-serif;
-         font-size: clamp(19px, 1.8vw, 28px);
-         line-height: 1.18;
-         letter-spacing: 1px;
+         font-size: clamp(16px, 1.5vw, 24px);
+         line-height: 1.15;
+         letter-spacing: 0.5px;
          white-space: normal;
-         overflow-y: auto;
-         padding: 10px 18px 10px 22px;
+         overflow: hidden;
+         padding: 10px 12% 10px 22px;
+         word-break: break-word;
+         overflow-wrap: break-word;
+         box-sizing: border-box;
        }
 
 
@@ -536,62 +546,62 @@ export default function AboutMe() {
      `}</style>
 
 
-     <div className="sc-root" role="navigation">
-       {ITEMS.map((item, i) => (
-         <div
-           key={item.id}
-           className={`sc-bar-outer${active === i ? " active" : ""}${mounted ? " mounted" : ""}`}
-         >
-           <div className="sc-bar-red" />
-           <div className="sc-bar" aria-hidden="true">
-             <img className="sc-char" src={CHARS[i]} alt="" />
-             <div className="sc-bar-fill" />
-             <div className="sc-bar-shade" />
-             <div className="sc-bar-content">
-               <div className="sc-role">{ROLES[i].texto}</div>
-               <div className="sc-main">
-                 <div className="sc-main-top">
-                   <div className="sc-label">{item.etiqueta}</div>
-                 </div>
-               </div>
-             </div>
-           </div>
-           <button
-             type="button"
-             className="sc-bar-hit"
-             tabIndex={-1}
-             aria-label={`${ROLES[i].texto}: ${item.etiqueta}`}
-             onMouseEnter={() => {
-               if (!revealed) setActive(i);
-             }}
-             onClick={() => {
-               if (revealed) return;
-               setActive(i);
-               setRevealed(true);
-             }}
-           >
-           </button>
-         </div>
-       ))}
-     </div>
+      <div className="sc-root" role="navigation">
+        {ITEMS.map((item, i) => (
+          <div
+            key={item.id}
+            className={`sc-bar-outer${active === i ? " active" : ""}${mounted ? " mounted" : ""}`}
+          >
+            <div className="sc-bar-red" />
+            <div className="sc-bar" aria-hidden="true">
+              <img className="sc-char" src={CHARS[i]} alt="" />
+              <div className="sc-bar-fill" />
+              <div className="sc-bar-shade" />
+              <div className="sc-bar-content">
+                <div className="sc-role">{ROLES[i].texto}</div>
+                <div className="sc-main">
+                  <div className="sc-main-top">
+                    <div className="sc-label">{item.etiqueta}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button
+              type="button"
+              className="sc-bar-hit"
+              tabIndex={-1}
+              aria-label={`${ROLES[i].texto}: ${item.etiqueta}`}
+              onMouseEnter={() => {
+                if (!revealed) setActive(i);
+              }}
+              onClick={() => {
+                if (revealed) return;
+                setActive(i);
+                setRevealed(true);
+              }}
+            >
+            </button>
+          </div>
+        ))}
+      </div>
 
 
-     <div className={`sc-footer${mounted ? " mounted" : ""}`}>
-       <div className="sc-footer-row"><span className="sc-footer-key">↑↓</span><span>{sobreMi.ayuda.seleccionar}</span></div>
-       <div className="sc-footer-row"><span className="sc-footer-key">↵</span><span>{sobreMi.ayuda.revelar}</span></div>
-       <div className="sc-footer-row"><span className="sc-footer-key">ESC</span><span>{sobreMi.ayuda.volver}</span></div>
-     </div>
+      <div className={`sc-footer${mounted ? " mounted" : ""}`}>
+        <div className="sc-footer-row"><span className="sc-footer-key">↑↓</span><span>{sobreMi.ayuda.seleccionar}</span></div>
+        <div className="sc-footer-row"><span className="sc-footer-key">↵</span><span>{sobreMi.ayuda.revelar}</span></div>
+        <div className="sc-footer-row"><span className="sc-footer-key">ESC</span><span>{sobreMi.ayuda.volver}</span></div>
+      </div>
 
 
-     <div className="sc-mobile-controls" aria-label={sobreMi.ariaControlesMovil}>
-       <button className="sc-mobile-btn" type="button" onClick={() => navigate(-1)}>
-         {sobreMi.movil.volver}
-       </button>
-       <button className="sc-mobile-btn" type="button" onClick={() => setRevealed(prev => !prev)}>
-         {revealed ? sobreMi.movil.ocultar : sobreMi.movil.mostrar}
-       </button>
-     </div>
-   </div>
- );
+      <div className="sc-mobile-controls" aria-label={sobreMi.ariaControlesMovil}>
+        <button className="sc-mobile-btn" type="button" onClick={() => navigate(-1)}>
+          {sobreMi.movil.volver}
+        </button>
+        <button className="sc-mobile-btn" type="button" onClick={() => setRevealed(prev => !prev)}>
+          {revealed ? sobreMi.movil.ocultar : sobreMi.movil.mostrar}
+        </button>
+      </div>
+    </div>
+  );
 }
 

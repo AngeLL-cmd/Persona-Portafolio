@@ -111,6 +111,7 @@ body {
   0% {
     transform: translateX(100%);
   }
+
   100% {
     transform: translateX(-100%);
   }
@@ -118,6 +119,7 @@ body {
 
 /* Touch-friendly defaults for narrow screens */
 @media (max-width: 1024px) {
+
   #menu-screen,
   #main {
     height: 100dvh;

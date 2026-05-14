@@ -35,7 +35,7 @@ import redesPersonaje2 from "./assets/char2.png";
 import redesPersonaje3 from "./assets/char3.png";
 
 export const metaSitio = {
-  tituloPagina: "Mi portfolio",
+  tituloPagina: "Angel Gabriel Morales Aguilar — Portafolio",
   idiomaHtml: "es",
 };
 
@@ -59,8 +59,8 @@ export const mediosGlobales = {
 };
 
 export const marcaMenu = {
-  linea1: "Angel",
-  linea2: "Morales",
+  linea1: "Angel Gabriel",
+  linea2: "Morales Aguilar",
 };
 
 export const menuPrincipal = [
@@ -89,29 +89,30 @@ export const sobreMi = {
   contenidoAlRevelar: [
     {
       superior: [
-        "Hola soy Angel Morales y estudio Ingeniería de software",
-        "Soy de Lima/Perú. Me gusta imaginar ideas y plasmarlas en el codigo.",
-        "Me interesa Python, React, JavaScript, PHP, MySQL y Java.",
-        "Interés en desarrollo backend y creación de sistemas.",
+        "Estudiante de Ingeniería de Software con IA, Senati (Lima).",
+        "Desarrollo web: React, HTML, CSS, JavaScript; APIs REST (Axios); Git / GitHub.",
+        "Prácticas (6 meses, 2025) en APM Inversiones: interfaces web, componentes reutilizables, trabajo en equipo.",
+        "Python, bases de datos (MySQL, PostgreSQL, Supabase), fundamentos MVC.",
       ],
-      inferior: "Aprendiendo, programando y construyendo.",
+      inferior: "Lima, Perú",
     },
     {
       superior: [
-        "Formación: Senati",
-        "5 Ciclo de Ingeniería de Software",
-        "Logros: Crear mi propio sistema de gestión de inventario",
+        "Senati — Ingeniería de Software con IA (en curso, previsto 2026).",
+        "Cisco Networking Academy (2024): Ciencia de Datos, Hardware, Redes, Ciberseguridad, IoT.",
+        "Stack: JavaScript, Python, React, HTML5, CSS3, MySQL, PostgreSQL, Supabase.",
+        "Herramientas: MVC, APIs REST, Git, GitHub, VS Code.",
       ],
       inferior: "Graduación prevista: 2026",
     },
     {
       superior: [
-        "Ahora mismo:",
-        "Crear mi propia AI",
-        "Crear mi propia aplicación de escritorio",
-        "Aprender mas sobre IA",
+        "Proyectos destacados en este portafolio:",
+        "Sistema web institucional (PHP, Yii2, MySQL) con buscador con IA.",
+        "Sistema de votación digital (TypeScript, Java, Supabase) con dashboard en tiempo real.",
+        "Este portafolio interactivo (React, Vite, Framer Motion, React Router).",
       ],
-      inferior: "Si lo imaginas, lo puedes hacer",
+      inferior: "Contacto: gabrielmoralesaguilar5@gmail.com · +51 929 674 111 · GitHub: AngeLL-cmd",
     },
   ],
   ayuda: {
@@ -128,9 +129,9 @@ export const sobreMi = {
 };
 
 export const experienciaUi = {
-  codigoCabecera: "NOMBRE EN CLAVE: Angel Morales",
+  codigoCabecera: "NOMBRE EN CLAVE: Angel Gabriel Morales Aguilar",
   titulo: "ARCHIVO DE PROYECTOS",
-  subtitulo: "Ingeniero De Software AI",
+  subtitulo: "Estudiante de Ingeniería de Software con IA · Desarrollo web",
   logTitulo: "REGISTRO",
   archivoPrevio: "◀ ARCHIVO ANTERIOR",
   archivoSiguiente: "SIGUIENTE ARCHIVO ▶",
@@ -165,6 +166,31 @@ export const experienciaUi = {
  * Opcional: `visual` (import de imagen). Si no se define, el panel derecho muestra solo datos del caso.
  */
 export const experiencias = [
+  {
+    id: "mission-apm",
+    codigoMision: "Prácticas 2025",
+    operacion: "APM INVERSIONES E.I.R.L.",
+    rol: "Practicante de Desarrollo de Software",
+    organizacion: "APM INVERSIONES E.I.R.L.",
+    referencia:
+      "Prácticas profesionales: interfaces web con React, consumo de APIs REST y trabajo colaborativo con Git.",
+    estado: "COMPLETE",
+    resumen:
+      "Seis meses desarrollando interfaces web con React, HTML, CSS y JavaScript; implementación de componentes reutilizables; consumo de APIs REST con Axios; control de versiones con Git y trabajo en equipo.",
+    fechas: "[2025] · 6 meses",
+    tecnologias: ["React", "JavaScript", "HTML5", "CSS3", "Axios", "REST API", "Git", "GitHub"],
+    logros: [
+      "Desarrollo de interfaces de usuario con React y stack web estándar",
+      "Integración de servicios mediante consumo de APIs REST (Axios)",
+      "Componentes reutilizables y mantenimiento de código en equipo",
+      "Uso de Git para flujo de trabajo y revisión colaborativa",
+    ],
+    habilidadesDesbloqueadas: [
+      "Desarrollo frontend con React",
+      "Consumo e integración de APIs REST",
+      "Trabajo en equipo y buenas prácticas con Git",
+    ],
+  },
   {
     id: "mission-01",
     codigoMision: "Proyecto 1",
@@ -202,7 +228,7 @@ export const experiencias = [
     codigoMision: "Proyecto 3",
     operacion: "PORTAFOLIO PERSONALIZADO",
     rol: "Frontend Developer",
-    organizacion: "Proyecto personal (Angel Morales)",
+    organizacion: "Proyecto personal (Angel Gabriel Morales Aguilar)",
     referencia:
       "Proyecto personal de portafolio interactivo desarrollado de forma individual.",
     estado: "COMPLETE",
@@ -316,7 +342,7 @@ export const proyectosUi = {
     textoGuia:
       "«Bienvenido/a… El compendio está listo. Elige una entrada para revisar los detalles.»",
     textoAsistente:
-      "«Estás a punto de ver el archivo digital de [TU NOMBRE]: proyectos y notas reunidos en un solo lugar. ¿Continuar?»",
+      "«Estás a punto de ver el archivo digital de Angel Gabriel Morales Aguilar: proyectos y notas reunidos en un solo lugar. ¿Continuar?»",
     volverInicio: "VOLVER",
     continuar: "CONTINUAR",
     noVolver: "NO, ATRÁS",
@@ -346,9 +372,11 @@ export const categoriasHabilidades = [
     titulo: "Lenguajes",
     imagen: habImgLenguajes,
     lista: [
+      { nombre: "JavaScript", nivel: 4 },
+      { nombre: "TypeScript", nivel: 3 },
       { nombre: "Python", nivel: 4 },
-      { nombre: "JavaScript / TypeScript", nivel: 4 },
-      { nombre: "SQL", nivel: 4 },
+      { nombre: "HTML5 / CSS3", nivel: 4 },
+      { nombre: "SQL (MySQL, PostgreSQL)", nivel: 4 },
       { nombre: "Java", nivel: 2 },
       { nombre: "PHP", nivel: 4 },
       { nombre: "C++", nivel: 2 },
@@ -359,7 +387,7 @@ export const categoriasHabilidades = [
     titulo: "Frameworks y librerías",
     imagen: habImgFrameworks,
     lista: [
-      { nombre: "React", nivel: 4 },
+      { nombre: "React (Hooks, Axios, React Router)", nivel: 4 },
       { nombre: "Vite", nivel: 4 },
       { nombre: "React Router DOM", nivel: 3 },
       { nombre: "Framer Motion", nivel: 3 },
@@ -375,10 +403,11 @@ export const categoriasHabilidades = [
     titulo: "Nube y DevOps",
     imagen: habImgCloud,
     lista: [
-      { nombre: "Git / GitHub", nivel: 3 },
-    { nombre: "CI/CD básico (deploy en Vercel / Netlify / GitHub Pages)", nivel: 3 },
-    { nombre: "Supabase (Backend as a Service)", nivel: 3 }
-      
+      { nombre: "Git / GitHub", nivel: 4 },
+      { nombre: "Visual Studio Code", nivel: 4 },
+      { nombre: "CI/CD básico (deploy en Vercel / Netlify / GitHub Pages)", nivel: 3 },
+      { nombre: "Supabase (Backend as a Service)", nivel: 3 }
+
     ],
   },
   {
@@ -440,8 +469,8 @@ export const redes = {
     {
       id: "email",
       etiqueta: "CONTACTO",
-      usuario: "areck012@gmail.com",
-      href: "mailto:areck012@gmail.com",
+      usuario: "gabrielmoralesaguilar5@gmail.com",
+      href: "mailto:gabrielmoralesaguilar5@gmail.com",
       icono: "@",
       stats: [
         { etiqueta: "TIPO", valor: "DIRECTO", color: "#00f2ea" },
